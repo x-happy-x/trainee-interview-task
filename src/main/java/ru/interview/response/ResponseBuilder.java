@@ -40,8 +40,8 @@ public class ResponseBuilder {
         return build(httpStatus, responseObj, path, null);
     }
 
-    public static ResponseEntity<?> ok(Object responseObj) {
-        return build(HttpStatus.OK, responseObj, null);
+    public static ResponseEntity<?> ok(Object responseObj, String path) {
+        return build(HttpStatus.OK, responseObj, path);
     }
 
     public static ResponseEntity<?> error(HttpStatus httpStatus, Object responseObj, Throwable throwable, String path) {

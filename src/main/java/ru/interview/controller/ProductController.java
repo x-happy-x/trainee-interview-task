@@ -3,7 +3,6 @@ package ru.interview.controller;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,13 +29,13 @@ public class ProductController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllProducts(HttpServletRequest request) {
         List<Product> products = productService.getAllProducts();
-        return ResponseBuilder.build(HttpStatus.OK, products, request.getRequestURI());
+        return ResponseBuilder.ok(products, request.getRequestURI());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id, HttpServletRequest request) {
         Product product = productService.getProductById(id);
-        return ResponseBuilder.build(HttpStatus.OK, product, request.getRequestURI());
+        return ResponseBuilder.ok(product, request.getRequestURI());
     }
 
     @PostMapping("/add")
@@ -48,13 +47,13 @@ public class ProductController {
     @PutMapping("/update")
     public ResponseEntity<?> updateProduct(@RequestBody Product product, HttpServletRequest request) {
         product = productService.updateProduct(product);
-        return ResponseBuilder.build(HttpStatus.OK, product, request.getRequestURI());
+        return ResponseBuilder.ok(product, request.getRequestURI());
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteProduct(@RequestBody Product product, HttpServletRequest request) {
         productService.deleteProduct(product.getId());
-        return ResponseBuilder.build(HttpStatus.OK, null, request.getRequestURI());
+        return ResponseBuilder.ok(null, request.getRequestURI());
     }
 
     @GetMapping("/search")
@@ -82,7 +81,7 @@ public class ProductController {
         List<Product> products = productService.searchProducts(
                 name, minPrice, maxPrice, inStock, size > 0 ? PageRequest.of(page, size, Sort.by(sortBy)) : null);
 
-        return ResponseBuilder.build(HttpStatus.OK, products, request.getRequestURI());
+        return ResponseBuilder.ok(products, request.getRequestURI());
     }
 
 

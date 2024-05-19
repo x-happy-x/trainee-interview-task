@@ -1,0 +1,33 @@
+### Получить все продажи товаров
+GET http://{{host}}:{{port}}/product-sale/all
+
+### Получить отдельную продажу товара
+GET http://{{host}}:{{port}}/product-sale/1
+
+### Создать новую продажу товара
+POST http://{{host}}:{{port}}/product-sale/add
+Content-Type: application/json
+
+{
+  "documentName": "Новый документ",
+  "product": {"id": 3},
+  "quantity": 5,
+  "purchasePrice": 2000.0
+}
+
+### Изменить существующую продажу товара
+PUT http://{{host}}:{{port}}/product-sale/update
+Content-Type: application/json
+
+{
+  "id": 2,
+  "documentName": "Обновленный документ",
+  "product": {"id": 3},
+  "quantity": 10,
+  "purchasePrice": 2200.0
+}
+
+### Удалить продажу товара
+DELETE http://{{host}}:{{port}}/product-sale/delete/1
+
+

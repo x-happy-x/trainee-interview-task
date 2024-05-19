@@ -1,0 +1,29 @@
+### Получить все поставки товаров
+GET http://{{host}}:{{port}}/product-supply/all
+
+### Получить отдельную поставку товара
+GET http://{{host}}:{{port}}/product-supply/3
+
+### Создать новую поставку товара
+POST http://{{host}}:{{port}}/product-supply/add
+Content-Type: application/json
+
+{
+  "documentName": "Новый документ",
+  "product": {"id": 3},
+  "quantity": 100
+}
+
+### Изменить существующую поставку товара
+PUT http://{{host}}:{{port}}/product-supply/update
+Content-Type: application/json
+
+{
+  "id": 5,
+  "documentName": "Обновленный документ",
+  "product": {"id": 4},
+  "quantity": 150
+}
+
+### Удалить поставку товара
+DELETE http://{{host}}:{{port}}/product-supply/delete/3
