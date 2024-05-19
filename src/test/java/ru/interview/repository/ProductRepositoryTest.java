@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import ru.interview.entity.Product;
 
 import java.util.List;
@@ -121,4 +123,48 @@ public class ProductRepositoryTest {
         Optional<Product> foundProduct = productRepository.findById(product.getId());
         Assertions.assertTrue(foundProduct.isEmpty());
     }
+
+    @Test
+    public void findByFiltersAndSort_ReturnsProductPage() {
+        Product product1 = new Product();
+        product1.setName("Товар1");
+        product1.setPrice(100.0);
+        product1.setInStock(true);
+        productRepository.save(product1);
+
+        Product product2 = new Product();
+        product2.setName("Товар2");
+        product2.setPrice(200.0);
+        product2.setInStock(true);
+        productRepository.save(product2);
+
+        Page<Product> page = productRepository.findByFiltersAndSort(
+                "Товар", 50.0, 250.0, true, PageRequest.of(0, 10));
+
+        Assertions.assertEquals(2, page.getTotalElements());
+        Assertions.assertTrue(page.getContent().contains(product1));
+        Assertions.assertTrue(page.getContent().contains(product2));
+    }
+
+    @Test
+    public void findByFilters_ReturnsProductList() {
+        Product product1 = new Product();
+        product1.setName("Товар1");
+        product1.setPrice(100.0);
+        product1.setInStock(true);
+        productRepository.save(product1);
+
+        Product product2 = new Product();
+        product2.setName("Товар2");
+        product2.setPrice(200.0);
+        product2.setInStock(true);
+        productRepository.save(product2);
+
+        List<Product> products = productRepository.findByFilters("Товар", 50.0, 250.0, true);
+
+        Assertions.assertEquals(2, products.size());
+        Assertions.assertTrue(products.contains(product1));
+        Assertions.assertTrue(products.contains(product2));
+    }
+
 }

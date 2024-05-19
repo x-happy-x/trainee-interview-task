@@ -7,6 +7,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,8 +19,7 @@ import ru.interview.service.ProductService;
 
 import java.util.Arrays;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -49,7 +50,7 @@ public class ProductControllerTest {
         mockMvc.perform(get("/product/all"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(1))
+                .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()))
                 .andExpect(jsonPath("$.response.length()").value(2))
                 .andExpect(jsonPath("$.count").value(2));
     }
@@ -63,7 +64,7 @@ public class ProductControllerTest {
         mockMvc.perform(get("/product/{id}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(1))
+                .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()))
                 .andExpect(jsonPath("$.response.id").value(product.getId()));
     }
 
@@ -74,7 +75,7 @@ public class ProductControllerTest {
         mockMvc.perform(get("/product/{id}", 1L))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(-1));
+                .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()));
     }
 
     @Test
@@ -92,7 +93,7 @@ public class ProductControllerTest {
                         .content("{\"name\":\"Test Product\",\"description\":\"Description\",\"price\":100.0,\"inStock\":true}"))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(1));
+                .andExpect(jsonPath("$.status").value(HttpStatus.CREATED.value()));
     }
 
     @Test
@@ -104,7 +105,7 @@ public class ProductControllerTest {
                         .content("{\"name\":\"Invalid Product\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(-1));
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()));
     }
 
     @Test
@@ -122,7 +123,7 @@ public class ProductControllerTest {
                         .content("{\"id\":1,\"name\":\"Updated Product\",\"description\":\"Updated Description\",\"price\":150.0,\"inStock\":false}"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(1))
+                .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()))
                 .andExpect(jsonPath("$.response.id").value(product.getId()));
     }
 
@@ -135,7 +136,7 @@ public class ProductControllerTest {
                         .content("{\"id\":1,\"name\":\"Invalid Product\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(-1));
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()));
     }
 
     @Test
@@ -147,7 +148,7 @@ public class ProductControllerTest {
                         .content("{\"id\":1,\"name\":\"Updated Product\"}"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(-1));
+                .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()));
     }
 
     @Test
@@ -159,7 +160,7 @@ public class ProductControllerTest {
                         .content("{\"id\":1}"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(1));
+                .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()));
     }
 
     @Test
@@ -171,6 +172,33 @@ public class ProductControllerTest {
                         .content("{\"id\":1}"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(-1));
+                .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()));
+    }
+
+    @Test
+    public void searchProducts_ReturnsProductList() throws Exception {
+        Product product1 = new Product();
+        product1.setName("Товар1");
+        product1.setPrice(100.0);
+        product1.setInStock(true);
+
+        Product product2 = new Product();
+        product2.setName("Товар2");
+        product2.setPrice(200.0);
+        product2.setInStock(true);
+
+        when(productService.searchProducts(anyString(), anyDouble(), anyDouble(), anyBoolean(), any()))
+                .thenReturn(Arrays.asList(product1, product2));
+
+        mockMvc.perform(get("/product/search")
+                        .param("name", "Товар")
+                        .param("inStock", "true")
+                        .param("minPrice", "100.0")
+                        .param("maxPrice", "100.0"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()))
+                .andExpect(jsonPath("$.response.length()").value(2))
+                .andExpect(jsonPath("$.count").value(2));
     }
 }

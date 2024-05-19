@@ -1,6 +1,9 @@
 package ru.interview.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.interview.entity.Product;
@@ -10,8 +13,10 @@ import ru.interview.repository.ProductRepository;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Validated
@@ -66,5 +71,13 @@ public class ProductService {
             throw new ProductNotFoundException("Product with id " + id + " not found");
         }
         productRepository.deleteById(id);
+    }
+
+    public List<Product> searchProducts(String name, Double minPrice, Double maxPrice, Boolean inStock, Pageable pageable) {
+        if (pageable == null) {
+            return productRepository.findByFilters(name, minPrice, maxPrice, inStock);
+        }
+        Page<Product> page = productRepository.findByFiltersAndSort(name, minPrice, maxPrice, inStock, pageable);
+        return page.getContent();
     }
 }

@@ -1,10 +1,13 @@
-# REST API для РомашкаКо
+# Интернет магазин "МоиТовары"
 
 ## Описание
-Это REST API проект для работы с ассортиментом товаров компании "РомашкаКо". API позволяет выполнять полный CRUD (Create, Read, Update, Delete) операции с товарами.
+Это REST API проект для работы с ассортиментом товаров компании "РомашкаКо". 
+API позволяет выполнять полный CRUD (Create, Read, Update, Delete) операции с товарами. 
+Теперь ещё включена фильтрация и сортировка
 
 ## Функциональные требования
 - Хранение товаров в базе данных.
+- Фильтрация и сортировка товаров
 - Проверки на ограничения полей:
   - Название товара ограничено 255 символами и обязательно при создании.
   - Описание товара ограничено 4096 символами.
@@ -62,6 +65,14 @@ docker-compose up --build -d
 docker-compose up -d 
 ```
 
+## Тестирование
+Для тестирования используйте фреймворк JUnit5. Тесты находятся в директории `src/test/java`.
+
+Запуск тестов:
+```bash
+mvn test
+```
+
 ## Эндпоинты
 
 ### Получить список товаров
@@ -81,8 +92,7 @@ docker-compose up -d
     ...
   ],
   "count": 1,
-  "message": "success",
-  "status": 1
+  "status": 200
 }
 ```
 
@@ -99,8 +109,7 @@ docker-compose up -d
     "price": 100.0,
     "inStock": false
   },
-  "message": "success",
-  "status": 1
+  "status": 200
 }
 ```
 
@@ -126,8 +135,7 @@ docker-compose up -d
     "price": 100.0,
     "inStock": true
   },
-  "message": "success",
-  "status": 1
+  "status": 201
 }
 ```
 
@@ -154,8 +162,7 @@ docker-compose up -d
     "price": 150.0,
     "inStock": false
   },
-  "message": "success",
-  "status": 1
+  "status": 200
 }
 ```
 
@@ -171,31 +178,26 @@ docker-compose up -d
 - **Ответ:**
 ```json
 {
-  "message": "success",
-  "status": 1
+  "status": 200
 }
-```
-
-## Тестирование
-Для тестирования используйте фреймворк JUnit5. Тесты находятся в директории `src/test/java`.
-
-Запуск тестов:
-```bash
-mvn test
 ```
 
 ## Унифицированные ошибки
 При возникновении ошибок API возвращает JSON-объект с описанием ошибки. Пример ответа при неверном запросе:
 ```json
 {
-  "message": "Product with id 1 not found",
-  "status": -1
+  "path": "/product/1",
+  "error": "Product with id 1 not found",
+  "status": 404,
+  "timestamp": "2024-05-19T16:59:56.231030800"
 }
 ```
 или
 ```json
 {
-  "message": "price: Price must be greater than or equal to 0",
-  "status": -1
+  "path": "/product/update",
+  "error": "price: Price must be greater than or equal to 0",
+  "status": 400,
+  "timestamp": "2024-05-19T17:00:19.117358500"
 }
 ```

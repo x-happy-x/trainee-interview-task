@@ -5,6 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.interview.entity.Product;
 import ru.interview.exception.ProductNotFoundException;
 import ru.interview.exception.ProductValidationException;
@@ -141,5 +145,29 @@ public class ProductServiceTest {
         when(productRepository.existsById(anyLong())).thenReturn(false);
 
         assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(1L));
+    }
+
+    @Test
+    public void searchProducts_ReturnsProductList() {
+        Product product1 = new Product();
+        product1.setName("Товар1");
+        product1.setPrice(100.0);
+
+        Product product2 = new Product();
+        product2.setName("Товар2");
+        product2.setPrice(200.0);
+
+        Page<Product> page = new PageImpl<>(List.of(product1, product2));
+        when(productRepository.findByFiltersAndSort(anyString(), anyDouble(), anyDouble(), anyBoolean(), any(Pageable.class)))
+                .thenReturn(page);
+        when(productRepository.findByFilters(anyString(), anyDouble(), anyDouble(), anyBoolean()))
+                .thenReturn(page.getContent());
+
+        List<Product> products = productService.searchProducts(
+                "Товар", 50.0, 250.0, true, PageRequest.of(0, 10));
+
+        assertEquals(2, products.size());
+        assertTrue(products.contains(product1));
+        assertTrue(products.contains(product2));
     }
 }

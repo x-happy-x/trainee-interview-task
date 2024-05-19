@@ -9,9 +9,9 @@ POST http://{{host}}:{{port}}/product/add
 Content-Type: application/json
 
 {
-  "name": "Новый продукт",
+  "name": "Новый товар",
   "description": "Описание нового продукта",
-  "price": 100.0,
+  "price": 2400.0,
   "inStock": false
 }
 
@@ -20,10 +20,10 @@ PUT http://{{host}}:{{port}}/product/update
 Content-Type: application/json
 
 {
-  "id": 1,
+  "id": 5,
   "name": "Обновленный продукт",
   "description": "Описание обновленного продукта",
-  "price": 150.0,
+  "price": -150.0,
   "inStock": false
 }
 
@@ -34,3 +34,7 @@ Content-Type: application/json
 {
   "id": 1
 }
+
+
+### Поиск товаров
+GET http://{{host}}:{{port}}/product/search?name=Товар&minPrice=1400&maxPrice=3000&inStock=false&sortBy=price
