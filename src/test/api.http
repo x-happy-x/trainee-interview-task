@@ -1,0 +1,36 @@
+### Получить все товары
+GET http://{{host}}:{{port}}/product/all
+
+### Получить отдельный товар
+GET http://{{host}}:{{port}}/product/1
+
+### Создать новый товар
+POST http://{{host}}:{{port}}/product/add
+Content-Type: application/json
+
+{
+  "name": "Новый продукт",
+  "description": "Описание нового продукта",
+  "price": 100.0,
+  "inStock": true
+}
+
+### Изменить существующий товар
+PUT http://{{host}}:{{port}}/product/update
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Обновленный продукт",
+  "description": "Описание обновленного продукта",
+  "price": -150.0,
+  "inStock": false
+}
+
+### Удалить товар
+DELETE http://{{host}}:{{port}}/product/delete
+Content-Type: application/json
+
+{
+  "id": 1
+}
