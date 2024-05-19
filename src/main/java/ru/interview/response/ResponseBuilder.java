@@ -4,17 +4,28 @@ package ru.interview.response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ResponseBuilder {
 
-    public static ResponseEntity<?> build(int status, HttpStatus httpStatus, Object responseObj, String message) {
+    public static ResponseEntity<?> build(HttpStatus httpStatus, Object responseObj, String path, String error) {
         Map<String, Object> map = new HashMap<>();
 
-        map.put("status", status);
-        map.put("message", message);
+        map.put("status", httpStatus.value());
+        if (error != null) {
+            map.put("error", error);
+        } else if (httpStatus.is4xxClientError() || httpStatus.is5xxServerError()) {
+            map.put("error", httpStatus.getReasonPhrase());
+        }
+
+        if (map.containsKey("error")) {
+            map.put("timestamp", ZonedDateTime.now().toLocalDateTime().toString());
+            if (path != null) map.put("path", path);
+        }
+
         if (responseObj != null) {
             map.put("response", responseObj);
             if (responseObj instanceof Collection) {
@@ -25,30 +36,24 @@ public class ResponseBuilder {
         return new ResponseEntity<>(map, httpStatus);
     }
 
-    public static ResponseEntity<?> build(HttpStatus httpStatus, Object responseObj) {
-        int status;
-        if (httpStatus.is4xxClientError() || httpStatus.is5xxServerError()) {
-            status = -1;
-        } else {
-            status = 1;
-        }
-        return build(status, httpStatus, responseObj, status == 1 ? "success" : httpStatus.getReasonPhrase());
+    public static ResponseEntity<?> build(HttpStatus httpStatus, Object responseObj, String path) {
+        return build(httpStatus, responseObj, path, null);
     }
 
-    public static ResponseEntity<?> build(Object responseObj) {
-        return build(HttpStatus.OK, responseObj);
+    public static ResponseEntity<?> ok(Object responseObj) {
+        return build(HttpStatus.OK, responseObj, null);
     }
 
-    public static ResponseEntity<?> error(int status, HttpStatus httpStatus, Object responseObj, Throwable throwable) {
-        return build(status, httpStatus, responseObj, throwable.getMessage());
+    public static ResponseEntity<?> error(HttpStatus httpStatus, Object responseObj, Throwable throwable, String path) {
+        return build(httpStatus, responseObj, path, throwable.getMessage());
     }
 
-    public static ResponseEntity<?> error(int status, HttpStatus httpStatus, Throwable throwable) {
-        return error(status, httpStatus, null, throwable);
+    public static ResponseEntity<?> error(HttpStatus httpStatus, Object responseObj, Throwable throwable) {
+        return error(httpStatus, responseObj, throwable, null);
     }
 
-    public static ResponseEntity<?> error(HttpStatus httpStatus, Throwable throwable) {
-        return error(-1, httpStatus, throwable);
+    public static ResponseEntity<?> error(HttpStatus httpStatus, Throwable throwable, String path) {
+        return error(httpStatus, null, throwable, path);
     }
 
 }

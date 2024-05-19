@@ -7,18 +7,18 @@ import ru.interview.exception.ProductNotFoundException;
 import ru.interview.exception.ProductValidationException;
 import ru.interview.response.ResponseBuilder;
 
-import javax.validation.ConstraintViolationException;
+import javax.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ProductValidationException.class)
-    public ResponseEntity<?> handleProductValidationException(ProductValidationException exception) {
-        return ResponseBuilder.error(HttpStatus.BAD_REQUEST, exception);
+    public ResponseEntity<?> handleProductValidationException(ProductValidationException exception, HttpServletRequest request) {
+        return ResponseBuilder.error(HttpStatus.BAD_REQUEST, exception, request.getRequestURI());
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<?> handleProductNotFoundException(ProductNotFoundException exception) {
-        return ResponseBuilder.error(HttpStatus.NOT_FOUND, exception);
+    public ResponseEntity<?> handleProductNotFoundException(ProductNotFoundException exception, HttpServletRequest request) {
+        return ResponseBuilder.error(HttpStatus.NOT_FOUND, exception, request.getRequestURI());
     }
 }
