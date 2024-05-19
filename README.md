@@ -28,6 +28,40 @@ mvn spring-boot:run
 
 Приложение будет доступно по адресу `http://localhost:8802`.
 
+## Запуск приложения в docker (база отдельно)
+
+Сборка приложения:
+```bash
+mvn clean package
+```
+
+Создание образа:
+```bash
+docker image build -t trainee-interview-task:latest . 
+```
+
+И запуск в контейнере:
+```bash
+docker run trainee-interview-task:latest
+```
+
+## Запуск приложения в docker-compose (с базой данных)
+
+Сборка приложения:
+```bash
+mvn clean package
+```
+
+Скачивания нужных образов, сборка и запуск контейнеров:
+```bash
+docker-compose up --build -d 
+```
+
+Если не нужно пересобирать образы, можно упустить --build
+```bash
+docker-compose up -d 
+```
+
 ## Эндпоинты
 
 ### Получить список товаров
