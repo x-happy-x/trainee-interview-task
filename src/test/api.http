@@ -12,7 +12,7 @@ Content-Type: application/json
   "name": "Новый продукт",
   "description": "Описание нового продукта",
   "price": 100.0,
-  "inStock": true
+  "inStock": false
 }
 
 ### Изменить существующий товар
@@ -23,7 +23,7 @@ Content-Type: application/json
   "id": 1,
   "name": "Обновленный продукт",
   "description": "Описание обновленного продукта",
-  "price": -150.0,
+  "price": 150.0,
   "inStock": false
 }
 

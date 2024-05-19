@@ -1,3 +1,15 @@
 server:
   address: localhost
-  port: 8801
+  port: 8802
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/products_db
+    username: postgres
+    password: 1234
+
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update

@@ -1,14 +1,14 @@
 package ru.interview.controller;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.interview.entity.Product;
 import ru.interview.exception.ProductNotFoundException;
@@ -19,11 +19,13 @@ import java.util.Arrays;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(ProductController.class)
 public class ProductControllerTest {
 
@@ -33,7 +35,7 @@ public class ProductControllerTest {
     @MockBean
     private ProductService productService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
     }
@@ -77,11 +79,17 @@ public class ProductControllerTest {
 
     @Test
     public void addProduct_ValidProduct_ReturnsCreated() throws Exception {
-        doNothing().when(productService).addProduct(any(Product.class));
+        Product product = new Product();
+        product.setId(1L);
+        product.setName("Test Product");
+        product.setDescription("Description");
+        product.setPrice(100.0);
+        product.setInStock(true);
+        when(productService.addProduct(any(Product.class))).thenReturn(product);
 
         mockMvc.perform(post("/product/add")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"Test Product\",\"description\":\"Description\",\"price\":100.0,\"inStock\":10}"))
+                        .content("{\"name\":\"Test Product\",\"description\":\"Description\",\"price\":100.0,\"inStock\":true}"))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(1));
@@ -103,11 +111,15 @@ public class ProductControllerTest {
     public void updateProduct_ValidProduct_ReturnsOk() throws Exception {
         Product product = new Product();
         product.setId(1L);
-        doNothing().when(productService).updateProduct(any(Product.class));
+        product.setName("Updated Product");
+        product.setDescription("Updated Description");
+        product.setPrice(150.0);
+        product.setInStock(false);
+        when(productService.updateProduct(any(Product.class))).thenReturn(product);
 
         mockMvc.perform(put("/product/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"id\":1,\"name\":\"Updated Product\",\"description\":\"Updated Description\",\"price\":150.0,\"inStock\":5}"))
+                        .content("{\"id\":1,\"name\":\"Updated Product\",\"description\":\"Updated Description\",\"price\":150.0,\"inStock\":false}"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(1))
@@ -140,9 +152,7 @@ public class ProductControllerTest {
 
     @Test
     public void deleteProduct_ExistingProduct_ReturnsOk() throws Exception {
-        Product product = new Product();
-        product.setId(1L);
-        doNothing().when(productService).deleteProduct(any(Product.class));
+        doNothing().when(productService).deleteProduct(anyLong());
 
         mockMvc.perform(delete("/product/delete")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -154,7 +164,7 @@ public class ProductControllerTest {
 
     @Test
     public void deleteProduct_ProductNotFound_ReturnsNotFound() throws Exception {
-        doThrow(new ProductNotFoundException("Product not found")).when(productService).deleteProduct(any(Product.class));
+        doThrow(new ProductNotFoundException("Product not found")).when(productService).deleteProduct(anyLong());
 
         mockMvc.perform(delete("/product/delete")
                         .contentType(MediaType.APPLICATION_JSON)
